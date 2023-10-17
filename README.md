@@ -1,5 +1,5 @@
 # raylibGames
-Simple games using Raylib in ANSI C
+Alguns exemplos de jogos simples utilizando a bibloteca RayLib e a linguagem Ansi C
 
 ## Para configurar a biblioteca no seu Linux (Ubuntu)
 
