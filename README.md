@@ -28,14 +28,12 @@ Caso encontre problemas do compilador não encontrar a biblioteca atualize com:
 ```
 sudo ldconfig
 ```
-"" Para compilar seu programa utilize
+## Para compilar seu programa utilize
 ```
 gcc seuJogo.c -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -o seuJogo
 ```
 
-
-
-Caso necessite desinstalar a biblioteca utilize:
+## Caso necessite desinstalar a biblioteca utilize:
 ```
 sudo make uninstall RAYLIB_LIBTYPE=SHARED
 ```
