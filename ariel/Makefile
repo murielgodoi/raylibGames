@@ -10,7 +10,7 @@ run:
 	$(BIN)
 
 config:
-	export LD_LIBRARY_PATH=/home/muriel/github/raylibGames/ariel/lib/
+	export LD_LIBRARY_PATH=./lib/
 	sudo ldconfig
 
 clean:
