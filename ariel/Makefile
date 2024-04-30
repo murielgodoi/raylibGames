@@ -1,5 +1,5 @@
 SRC=./*.c
-INCLUDE=-I./include/
+INCLUDE=-I./include/ -L./lib
 BIN=./ariel
 EXTRA_FLAGS = -Wall -Werror -Wextra -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
@@ -8,6 +8,10 @@ all:
 
 run:
 	$(BIN)
+
+config:
+	export LD_LIBRARY_PATH=/home/muriel/github/raylibGames/ariel/lib/
+	sudo ldconfig
 
 clean:
 	rm $(BIN)
