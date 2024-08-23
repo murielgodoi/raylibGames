@@ -14,7 +14,7 @@ typedef struct{
 Leader* readLeader(){
     Leader *leaderboard = calloc(10, sizeof(Leader));
 
-    FILE* file = fopen("data/leader.dat","rb");
+    FILE* file = fopen("leader.dat","rb");
     
     if (!file){
         printf("Leader não encontrado. Criando um vazio");
@@ -31,9 +31,9 @@ Leader* readLeader(){
 
 void writeLeader(Leader *leaderboard){
 
-    FILE* file = fopen("data/leader.dat","wb");
+    FILE* file = fopen("leader.dat","wb");
     
-    if (!file) {
+    if (file == NULL) {
         perror("Error on Leader save");
     } else {
         fwrite(leaderboard ,sizeof(Leader) ,10 ,file);
@@ -48,26 +48,25 @@ void addLeader(Leader* leaderboard, char name[], int score){
 
     int pos = 9;
     Leader newLeader;
-    strcat(newLeader.name, name);
+    strcpy(newLeader.name, name);
     newLeader.score = score;
 
-    Leader temp = leaderboard[pos];
-    while(leaderboard[pos].score <= newLeader.score || pos != 0 ){
-        leaderboard[pos] = leaderboard[pos-1];
+    while(leaderboard[pos].score <= newLeader.score && pos >= 0 ){
+        leaderboard[pos] =  leaderboard[pos-1];
         pos--;
     }//while]
     if(pos != 9){
-        leaderboard[pos] = temp;
+        leaderboard[pos+1] = newLeader;
     }//if
 
 }// addLeader
 
 void printLeader(Leader *leaderboard){
 
-    printf("\n|  # | Name           | Score |\n");
+    printf("\n|  # | Name                 | Score |\n");
     for (int i = 0; i < 10; i++){
         //if(leaderboard[i].score != -1)
-        printf("| %2d | $-20s | %5d |\n",i+1 ,leaderboard[i].name, leaderboard[i].score);
+        printf("| %2d | %-20s | %5d |\n",i+1 ,leaderboard[i].name, leaderboard[i].score);
     }//for
     return;
 
@@ -75,10 +74,22 @@ void printLeader(Leader *leaderboard){
 
 int main(){
 
-    Leader* leaderboard = NULL;
+    Leader* leaderboard = readLeader();
 
     printLeader(leaderboard);
-    addLeader(leaderboard, "Muriel", 50);
+    // addLeader(leaderboard, "Muriel", 50);
+    // addLeader(leaderboard, "Mantova", 70);
+    // addLeader(leaderboard, "Luizao", 60);
+    // addLeader(leaderboard, "Marcelo", 90);
+    // addLeader(leaderboard, "Adalberto", 30);
+    // addLeader(leaderboard, "Maurichan", 50);
+    // addLeader(leaderboard, "Fabiao", 70);
+    // addLeader(leaderboard, "Wendel", 60);
+    // addLeader(leaderboard, "Wagner", 90);
+    // addLeader(leaderboard,d "Andre do Mato", 30);
+
+    writeLeader(leaderboard);
+    
     printLeader(leaderboard);
 
     return 0;
