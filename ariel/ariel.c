@@ -9,7 +9,9 @@
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
 //------------------------------------------------------------------------------------------
-typedef enum GameScreen { START, RESTART, GAMEPLAY, PAUSE, ENDING } GameScreen;
+typedef enum GameScreen { START, RESTART, GAMEPLAY, PAUSE, ENDING, LEADER } GameScreen;
+
+
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -370,6 +372,10 @@ int main(void)
             DrawText(TextFormat("FIM DE JOGO"),(screenWidth/2) - MeasureText("FIM DE JOGO!",40)/2,screenHeight/4-20, 40, VIOLET);
             DrawText(TextFormat("Sua pontuação: %d pontos",pontuacao/10),(screenWidth/2) - MeasureText("Sua pontuação: 000 pontos",30)/2,screenHeight/3, 30, VIOLET);
             DrawText(TextFormat("pressione Enter para reiniciar..."),(screenWidth/2) - MeasureText("pressione Enter para reiniciar...",20)/2,screenHeight/2, 20, VIOLET);
+            break;
+        
+        case LEADER:
+
             break;
 
         }//switch
