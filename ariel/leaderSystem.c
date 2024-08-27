@@ -1,11 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-
-typedef struct{
-    char name[30];
-    int score;
-} Leader;
+#include"leaderSystem.h"
 
 //------------------------------------------------------------------------------------------
 // Leader methods
@@ -71,7 +67,7 @@ void printLeader(Leader *leaderboard){
     return;
 
 }//writeLeader
-
+/*
 int main(){
 
     Leader* leaderboard = readLeader();
@@ -95,3 +91,5 @@ int main(){
     return 0;
 
 }//main
+
+*/
