@@ -73,6 +73,8 @@ int main(void)
     Vector2 dadosPosicao[5];
     Rectangle dadosArea;
 
+    Leader* leaderBoard = readLeader();
+
     int colisionStatus[2]={0 , 0};
 
     int jump = 0;
@@ -227,6 +229,8 @@ int main(void)
             if(vidas == 0){
                 currentScreen = ENDING;
                 PlaySound(sndGameOver);
+                addLeader(leaderBoard,"Player", (int) pontuacao/10);
+                writeLeader(leaderBoard);
             }//if
 
             // Keyboard Inputs
@@ -235,6 +239,12 @@ int main(void)
                 PauseMusicStream(music);
                 PlaySound(sndPause);
             }    
+
+            if (IsKeyPressed(KEY_L)){
+                currentScreen = LEADER;
+                PauseMusicStream(music);
+                PlaySound(sndPause);
+            }   
 
             if ((IsKeyPressed(KEY_M))){
                 if(playMusic) ResumeMusicStream(music);
@@ -303,6 +313,11 @@ int main(void)
             break;
 
         case LEADER:
+            if (IsKeyPressed(KEY_ENTER)){
+                currentScreen = GAMEPLAY;
+                ResumeMusicStream(music);
+                PlaySound(sndPause);
+            }//if
             break;
         }//switch
         //----------------------------------------------------------------------------------
@@ -380,9 +395,19 @@ int main(void)
         
         case LEADER:
 
-            DrawText(TextFormat("Leaderboard"),(screenWidth/2) - MeasureText("FIM DE JOGO!",40)/2,screenHeight/4-20, 40, VIOLET);
-            DrawText(TextFormat("Sua pontuação: %d pontos",pontuacao/10),(screenWidth/2) - MeasureText("Sua pontuação: 000 pontos",30)/2,screenHeight/3, 30, VIOLET);
-            DrawText(TextFormat("pressione Enter para reiniciar..."),(screenWidth/2) - MeasureText("pressione Enter para reiniciar...",20)/2,screenHeight/2, 20, VIOLET);
+            char textBuffer[12];
+            DrawText(TextFormat("Leaderboard"),(screenWidth/2) - MeasureText("Leaderboard",40)/2,screenHeight/8, 40, VIOLET);
+            for (int i = 0; i < 10; i++){
+                if(leaderBoard[i].name[i] == '\0'){
+                    DrawText(TextFormat("---"),200,100+25*i, 20, VIOLET);            
+                }else{
+                    DrawText(TextFormat(leaderBoard[i].name),200,100+20*i, 20, VIOLET);
+                    sprintf(textBuffer,"%8d",leaderBoard[i].score);   
+                    DrawText(TextFormat(textBuffer),500,100+20*i, 20, VIOLET);
+                }//else
+            }//for
+            
+            DrawText(TextFormat("pressione Enter para continuar..."),(screenWidth/2) - MeasureText("pressione Enter para reiniciar...",20)/2,screenHeight*0.9, 20, WHITE);
             break;
 
         }//switch

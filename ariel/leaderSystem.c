@@ -67,29 +67,28 @@ void printLeader(Leader *leaderboard){
     return;
 
 }//writeLeader
-/*
-int main(){
 
-    Leader* leaderboard = readLeader();
+// int main(){
 
-    printLeader(leaderboard);
-    // addLeader(leaderboard, "Muriel", 50);
-    // addLeader(leaderboard, "Mantova", 70);
-    // addLeader(leaderboard, "Luizao", 60);
-    // addLeader(leaderboard, "Marcelo", 90);
-    // addLeader(leaderboard, "Adalberto", 30);
-    // addLeader(leaderboard, "Maurichan", 50);
-    // addLeader(leaderboard, "Fabiao", 70);
-    // addLeader(leaderboard, "Wendel", 60);
-    // addLeader(leaderboard, "Wagner", 90);
-    // addLeader(leaderboard,d "Andre do Mato", 30);
+//     Leader* leaderboard = readLeader();
 
-    writeLeader(leaderboard);
+//     printLeader(leaderboard);
+//     addLeader(leaderboard, "Muriel", 50);
+//     addLeader(leaderboard, "Mantova", 70);
+//     addLeader(leaderboard, "Luizao", 60);
+//     addLeader(leaderboard, "Marcelo", 90);
+//     addLeader(leaderboard, "Adalberto", 30);
+//     addLeader(leaderboard, "Maurichan", 50);
+//     addLeader(leaderboard, "Fabiao", 70);
+//     addLeader(leaderboard, "Wendel", 60);
+//     addLeader(leaderboard, "Wagner", 90);
+//     addLeader(leaderboard, "Andre do Mato", 30);
+
+//     writeLeader(leaderboard);
     
-    printLeader(leaderboard);
+//     printLeader(leaderboard);
 
-    return 0;
+//     return 0;
 
-}//main
+// }//main
 
-*/
