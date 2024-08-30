@@ -1,8 +1,11 @@
 #ifndef LEADERSYSTEM_H
     #define LEADERSYSTEM_H
 
+    #define SIZE 10
+    #define MAX_LENGTH 20
+
     typedef struct{
-        char name[30];
+        char name[MAX_LENGTH];
         int score;
     } Leader;
 

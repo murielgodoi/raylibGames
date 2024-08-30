@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
 //------------------------------------------------------------------------------------------
-typedef enum GameScreen { START, RESTART, GAMEPLAY, PAUSE, ENDING, LEADER } GameScreen;
+typedef enum GameScreen { START, RESTART, GAMEPLAY, PAUSE, ENDING, LEADER, TYPE_LEADER } GameScreen;
 
 
 
@@ -24,6 +24,7 @@ int main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
     float speed = 2;
+    unsigned long long int globalFrameCounter = 0;
 
     InitWindow(screenWidth, screenHeight, "Ariel em Raylib");
 
@@ -75,6 +76,9 @@ int main(void)
 
     Leader* leaderBoard = readLeader();
 
+    char name[30] = "\0";
+    int letterCount = 0;
+
     int colisionStatus[2]={0 , 0};
 
     int jump = 0;
@@ -105,6 +109,8 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
+        globalFrameCounter++;
+
         switch(currentScreen){
 
         case START:
@@ -227,10 +233,8 @@ int main(void)
             }//for            
             
             if(vidas == 0){
-                currentScreen = ENDING;
+                currentScreen = TYPE_LEADER;
                 PlaySound(sndGameOver);
-                addLeader(leaderBoard,"Player", (int) pontuacao/10);
-                writeLeader(leaderBoard);
             }//if
 
             // Keyboard Inputs
@@ -319,7 +323,41 @@ int main(void)
                 PlaySound(sndPause);
             }//if
             break;
+        
+        case TYPE_LEADER:
+            int key = GetCharPressed();
+            while (key > 0){
+                // NOTE: Only allow keys in range [32..125]
+                if ((key >= 32) && (key <= 125) && (letterCount < MAX_LENGTH - 1))
+                {
+                    name[letterCount] = (char)key;
+                    name[letterCount+1] = '\0'; // Add null terminator at the end of the string.
+                    letterCount++;
+                }
+
+                key = GetCharPressed();  // Check next character in the queue
+            }
+
+            if (IsKeyPressed(KEY_BACKSPACE))
+            {
+                letterCount--;
+                if (letterCount < 0) letterCount = 0;
+                name[letterCount] = '\0';
+            }
+
+            if (IsKeyPressed(KEY_ENTER)){
+                addLeader(leaderBoard,name, (int) pontuacao/10);
+                writeLeader(leaderBoard);
+                name[0] = '\0';
+                letterCount = 0;
+                currentScreen = LEADER;
+                ResumeMusicStream(music);
+                PlaySound(sndPause);
+            }//if
+            break;
+            
         }//switch
+
         //----------------------------------------------------------------------------------
         // Draw
         //----------------------------------------------------------------------------------
@@ -408,6 +446,20 @@ int main(void)
             }//for
             
             DrawText(TextFormat("pressione Enter para continuar..."),(screenWidth/2) - MeasureText("pressione Enter para reiniciar...",20)/2,screenHeight*0.9, 20, WHITE);
+            break;
+
+        case TYPE_LEADER:
+            DrawText(TextFormat("FIM DE JOGO"),(screenWidth/2) - MeasureText("FIM DE JOGO!",40)/2,screenHeight/4-20, 40, VIOLET);
+            DrawText(TextFormat("Sua pontuação: %d pontos",pontuacao/10),(screenWidth/2) - MeasureText("Sua pontuação: 000 pontos",30)/2,screenHeight/3, 30, VIOLET);
+            DrawText(TextFormat("Digite seu nome:"),(screenWidth/2) - MeasureText("Digite seu nome:",20)/2, 250, 20, VIOLET);
+
+            DrawRectangle((screenWidth/2) - 150, 280, 300, 60, GRAY);
+            DrawRectangleLines((screenWidth/2) - 150, 280, 300, 60, GREEN);
+            DrawText(name, (screenWidth/2) - 130, 300, 40, VIOLET);
+            if (letterCount < 30){ // Draw blinking underscore char
+                if (globalFrameCounter/20 % 2 == 0)
+                    DrawText("_", (screenWidth/2) - 130 + MeasureText(name, 40)+8,  300, 40, VIOLET);
+            }//if
             break;
 
         }//switch

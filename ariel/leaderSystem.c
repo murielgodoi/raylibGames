@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<stdbool.h>
 #include"leaderSystem.h"
 
 //------------------------------------------------------------------------------------------
@@ -8,18 +9,18 @@
 //------------------------------------------------------------------------------------------
 
 Leader* readLeader(){
-    Leader *leaderboard = calloc(10, sizeof(Leader));
+    Leader *leaderboard = calloc(SIZE, sizeof(Leader));
 
     FILE* file = fopen("leader.dat","rb");
     
     if (!file){
         printf("Leader não encontrado. Criando um vazio");
-        for (size_t i = 0; i < 10; i++){
+        for (size_t i = 0; i < SIZE; i++){
             leaderboard[i].name[0] = '\0';
             leaderboard[i].score = -1;
         }//for
     }else{
-        fread(leaderboard,sizeof(Leader),10,file);
+        fread(leaderboard, sizeof(Leader), SIZE, file);
         fclose(file);
     }//else
     return leaderboard;
@@ -32,7 +33,7 @@ void writeLeader(Leader *leaderboard){
     if (file == NULL) {
         perror("Error on Leader save");
     } else {
-        fwrite(leaderboard ,sizeof(Leader) ,10 ,file);
+        fwrite(leaderboard ,sizeof(Leader) ,SIZE ,file);
         fclose(file);
     }// else
 
@@ -40,9 +41,9 @@ void writeLeader(Leader *leaderboard){
 
 }//writeLeader
 
-void addLeader(Leader* leaderboard, char name[], int score){
+int addLeader(Leader* leaderboard, char name[], int score){
 
-    int pos = 9;
+    int pos = SIZE - 1;
     Leader newLeader;
     strcpy(newLeader.name, name);
     newLeader.score = score;
@@ -51,7 +52,7 @@ void addLeader(Leader* leaderboard, char name[], int score){
         leaderboard[pos] =  leaderboard[pos-1];
         pos--;
     }//while]
-    if(pos != 9){
+    if(pos != SIZE - 1){
         leaderboard[pos+1] = newLeader;
     }//if
 
@@ -60,13 +61,17 @@ void addLeader(Leader* leaderboard, char name[], int score){
 void printLeader(Leader *leaderboard){
 
     printf("\n|  # | Name                 | Score |\n");
-    for (int i = 0; i < 10; i++){
+    for (int i = 0; i < SIZE; i++){
         //if(leaderboard[i].score != -1)
         printf("| %2d | %-20s | %5d |\n",i+1 ,leaderboard[i].name, leaderboard[i].score);
     }//for
     return;
 
 }//writeLeader
+
+bool gotLeaderboard(Leader* leaderboard, int score){
+    return leaderboard[SIZE - 1].score <= score;
+}
 
 // int main(){
 
