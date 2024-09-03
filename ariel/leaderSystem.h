@@ -19,7 +19,7 @@
 
     void writeLeader(Leader *leaderboard);
 
-    void addLeader(Leader* leaderboard, char name[], int score);
+    int addLeader(Leader* leaderboard, char* name, int score);
 
     void printLeader(Leader *leaderboard);
 

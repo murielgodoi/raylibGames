@@ -41,7 +41,7 @@ void writeLeader(Leader *leaderboard){
 
 }//writeLeader
 
-int addLeader(Leader* leaderboard, char name[], int score){
+int addLeader(Leader* leaderboard, char* name, int score){
 
     int pos = SIZE - 1;
     Leader newLeader;
@@ -55,6 +55,8 @@ int addLeader(Leader* leaderboard, char name[], int score){
     if(pos != SIZE - 1){
         leaderboard[pos+1] = newLeader;
     }//if
+
+    return pos + 1;
 
 }// addLeader
 

@@ -25,6 +25,7 @@ int main(void)
     const int screenHeight = 450;
     float speed = 2;
     unsigned long long int globalFrameCounter = 0;
+    bool playScenario = true;
 
     InitWindow(screenWidth, screenHeight, "Ariel em Raylib");
 
@@ -111,7 +112,44 @@ int main(void)
     {
         globalFrameCounter++;
 
+        if(playScenario){
+
+            //Atualiza scrolling do céu (background)
+            scrollingBack -= 0.3f * speed;
+            if (scrollingBack <= -fundoCeu.width) scrollingBack = 0;
+
+            //Atualiza posicao das nuvens
+            for (int i = 0; i < 5; i++){
+                nuvemPosicao[i].x -= 0.5 * speed;
+                if(nuvemPosicao[i].x < -nuvens[i].width ) nuvemPosicao[i].x = rand()%screenWidth + screenWidth;
+            }//for
+
+            //Atualiza posicao das montanhas
+            for (int i = 0; i < 4; i++){
+                montanhasPosicao[i].x -= 0.8 * speed;
+                if(montanhasPosicao[i].x < -montanha.width ){                   
+                        montanhasPosicao[i].x = rand()%screenWidth + screenWidth;
+                        montanhasPosicao[i].y = screenHeight - montanha.height- chao.height + 5 + rand()%120;                  
+                }//if
+            }//for  
+
+            //Atualiza posicao das arvores
+            for (int i = 0; i < 4; i++){
+                arvoresPosicao[i].x -= 2 * speed;
+                if(arvoresPosicao[i].x < -arvore.width ){                   
+                        arvoresPosicao[i].x = rand()%screenWidth + screenWidth;
+                        arvoresPosicao[i].y = screenHeight - arvore.height- chao.height + 5 + rand()%20;                  
+                }//if
+            }//for     
+
+            // Atualiza scrolling chão        
+            inicioChao -= 2*speed;
+            if(inicioChao <=  0) inicioChao = chao.width-1;
+
+        }//if play scenario
+
         switch(currentScreen){
+            
 
         case START:
             pontuacao = 0;
@@ -161,9 +199,6 @@ int main(void)
             }//if
             exibeNivel = (pontuacao %1000 < 20) || ((pontuacao %1000 > 30) && (pontuacao %1000 < 100));
 
-            //Atualiza scrolling do céu (background)
-            scrollingBack -= 0.3f * speed;
-            if (scrollingBack <= -fundoCeu.width) scrollingBack = 0;
 
             // Atualiza frame do sprite do Ariel considerando o frameRate
             framesCounter++;
@@ -177,13 +212,7 @@ int main(void)
                 if (jump) currentFrame = 2;
 
             }//if
-
-            //Atualiza posicao das nuvens
-            for (int i = 0; i < 5; i++){
-                nuvemPosicao[i].x -= 0.5 * speed;
-                if(nuvemPosicao[i].x < -nuvens[i].width ) nuvemPosicao[i].x = rand()%screenWidth + screenWidth;
-            }//for
-
+            
             //Atualiza posicao dos dados
             for (int i = 0; i < 2; i++){
                 dadosPosicao[i].x -= 2 * speed;
@@ -196,30 +225,6 @@ int main(void)
                 }//if
             }//for    
 
-            //Atualiza posicao das montanhas
-            for (int i = 0; i < 4; i++){
-                montanhasPosicao[i].x -= 0.8 * speed;
-                if(montanhasPosicao[i].x < -montanha.width ){                   
-                        montanhasPosicao[i].x = rand()%screenWidth + screenWidth;
-                        montanhasPosicao[i].y = screenHeight - montanha.height- chao.height + 5 + rand()%120;
-
-                  
-                }//if
-            }//for  
-
-            //Atualiza posicao das arvores
-            for (int i = 0; i < 4; i++){
-                arvoresPosicao[i].x -= 2 * speed;
-                if(arvoresPosicao[i].x < -arvore.width ){                   
-                        arvoresPosicao[i].x = rand()%screenWidth + screenWidth;
-                        arvoresPosicao[i].y = screenHeight - arvore.height- chao.height + 5 + rand()%20;                  
-                }//if
-            }//for     
-
-            // Atualiza scrolling chão        
-            inicioChao -= 2*speed;
-            if(inicioChao <=  0) inicioChao = chao.width-1;
-            
             //Verifica colisões
             arielArea = (Rectangle){arielPosicao.x, arielPosicao.y - jumpHeight, ariel.width/12, ariel.height};
             for (int i = 0; i < 2; i++){
@@ -242,6 +247,7 @@ int main(void)
                 currentScreen = PAUSE;
                 PauseMusicStream(music);
                 PlaySound(sndPause);
+                playScenario = false;
             }    
 
             if (IsKeyPressed(KEY_L)){
@@ -293,6 +299,7 @@ int main(void)
                 currentScreen = GAMEPLAY;
                 ResumeMusicStream(music);
                 PlaySound(sndPause);
+                playScenario = true;
             }//if
             break;
 
@@ -318,7 +325,7 @@ int main(void)
 
         case LEADER:
             if (IsKeyPressed(KEY_ENTER)){
-                currentScreen = GAMEPLAY;
+                currentScreen = START;
                 ResumeMusicStream(music);
                 PlaySound(sndPause);
             }//if
@@ -363,10 +370,8 @@ int main(void)
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-        switch(currentScreen){
-            
-        case GAMEPLAY:
-        
+        if(playScenario){            
+
             ClearBackground(WHITE);
             //Desenha o céu de fundo
             DrawTexture(fundoCeu, scrollingBack, 0,WHITE);
@@ -392,7 +397,15 @@ int main(void)
             for (int i = 0; i < (screenWidth/chao.width)+3; i++) {
                 DrawTexture(chao, positionChao.x, positionChao.y,WHITE);  // Draw part of the texture
                 positionChao.x += chao.width-1;
-            }//for      
+            }//for   
+
+        }//if playScenario
+
+        switch(currentScreen){
+
+            
+        case GAMEPLAY:
+        
 
             //Desenha os dados       
             for (int i = 0; i < 2; i++) {
