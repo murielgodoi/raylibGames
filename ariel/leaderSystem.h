@@ -2,7 +2,7 @@
     #define LEADERSYSTEM_H
 
     #define SIZE 10
-    #define MAX_LENGTH 20
+    #define MAX_LENGTH 16
 
     typedef struct{
         char name[MAX_LENGTH];

@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
 //------------------------------------------------------------------------------------------
-typedef enum GameScreen { START, RESTART, GAMEPLAY, PAUSE, ENDING, LEADER, TYPE_LEADER } GameScreen;
+typedef enum GameScreen { START, RESTART, GAMEPLAY, PAUSE, ENDING, LEADER, TYPE_LEADER, OPENING } GameScreen;
 
 
 
@@ -25,7 +25,8 @@ int main(void)
     const int screenHeight = 450;
     float speed = 2;
     unsigned long long int globalFrameCounter = 0;
-    bool playScenario = true;
+    bool drawScenario = true;
+    bool drawAriel = true;
 
     InitWindow(screenWidth, screenHeight, "Ariel em Raylib");
 
@@ -44,13 +45,15 @@ int main(void)
     Sound sndGameOver = LoadSound("sounds/gameOver.mp3");
 
     //Carrega as texturas
+    Texture2D logo = LoadTexture("img/logo.png");  
+
     Texture2D fundoCeu = LoadTexture("img/background.png");
     Texture2D chao = LoadTexture("img/tile.png");
     Texture2D hit = LoadTexture("img/hit.png");
 
     Texture2D ariel = LoadTexture("img/ariel.png");
     Rectangle arielFrameRec = { 0.0f, 0.0f, (float)ariel.width/12, (float)ariel.height };
-    Vector2 arielPosicao = { 200.0f, screenHeight - ariel.height - chao.height + 5};
+    Vector2 arielPosicao = { 150.0f, screenHeight - ariel.height - chao.height + 5};
     Rectangle arielArea;
 
     Texture2D nuvens[5];
@@ -104,7 +107,7 @@ int main(void)
 
     SetTargetFPS(TARGET_FPS);               // Set our game to run at 60 frames-per-second
 
-    GameScreen currentScreen = START;
+    GameScreen currentScreen = OPENING;
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -112,7 +115,7 @@ int main(void)
     {
         globalFrameCounter++;
 
-        if(playScenario){
+        if(drawScenario){
 
             //Atualiza scrolling do céu (background)
             scrollingBack -= 0.3f * speed;
@@ -148,8 +151,32 @@ int main(void)
 
         }//if play scenario
 
+        if(drawAriel){
+            // Atualiza frame do sprite do Ariel considerando o frameRate
+            framesCounter++;
+            if (framesCounter >= (TARGET_FPS/(framesSpeed*speed))){
+                framesCounter = 0;
+                currentFrame++;
+                if (currentFrame > 11) currentFrame = 0;
+
+                arielFrameRec.x = (float)currentFrame*(float)ariel.width/12;
+
+                if (jump) currentFrame = 2;
+
+            }//if
+
+        }
+
         switch(currentScreen){
             
+        case OPENING:
+            // Keyboard Inputs
+            if (IsKeyPressed(KEY_ENTER)){
+                currentScreen = START;
+                PauseMusicStream(music);
+                PlaySound(sndPause);
+            }   
+            break;
 
         case START:
             pontuacao = 0;
@@ -200,18 +227,7 @@ int main(void)
             exibeNivel = (pontuacao %1000 < 20) || ((pontuacao %1000 > 30) && (pontuacao %1000 < 100));
 
 
-            // Atualiza frame do sprite do Ariel considerando o frameRate
-            framesCounter++;
-            if (framesCounter >= (TARGET_FPS/(framesSpeed*speed))){
-                framesCounter = 0;
-                currentFrame++;
-                if (currentFrame > 11) currentFrame = 0;
-
-                arielFrameRec.x = (float)currentFrame*(float)ariel.width/12;
-
-                if (jump) currentFrame = 2;
-
-            }//if
+           
             
             //Atualiza posicao dos dados
             for (int i = 0; i < 2; i++){
@@ -247,7 +263,7 @@ int main(void)
                 currentScreen = PAUSE;
                 PauseMusicStream(music);
                 PlaySound(sndPause);
-                playScenario = false;
+                drawScenario = false;
             }    
 
             if (IsKeyPressed(KEY_L)){
@@ -299,7 +315,7 @@ int main(void)
                 currentScreen = GAMEPLAY;
                 ResumeMusicStream(music);
                 PlaySound(sndPause);
-                playScenario = true;
+                drawScenario = true;
             }//if
             break;
 
@@ -325,7 +341,7 @@ int main(void)
 
         case LEADER:
             if (IsKeyPressed(KEY_ENTER)){
-                currentScreen = START;
+                currentScreen = OPENING;
                 ResumeMusicStream(music);
                 PlaySound(sndPause);
             }//if
@@ -370,7 +386,7 @@ int main(void)
         //----------------------------------------------------------------------------------
         BeginDrawing();
 
-        if(playScenario){            
+        if(drawScenario){            
 
             ClearBackground(WHITE);
             //Desenha o céu de fundo
@@ -401,8 +417,17 @@ int main(void)
 
         }//if playScenario
 
+        if(drawAriel){
+            //Desenha o ariel
+            DrawTextureRec(ariel, arielFrameRec, (Vector2){arielPosicao.x,arielPosicao.y-jumpHeight}, WHITE);  // Draw part of the texture
+        }
+
         switch(currentScreen){
 
+        case OPENING:
+        DrawTexture(logo, screenWidth/2-logo.width/2, 80 ,WHITE);  // Draw part of the texture
+        DrawText(TextFormat("Pressione ENTER para iniciar..."),screenWidth/2 - MeasureText("Pressione ENTER para iniciar...",20)/2,screenHeight-40,20, WHITE);
+            break;
             
         case GAMEPLAY:
         
@@ -415,9 +440,7 @@ int main(void)
                 }
             }//for         
 
-            //Desenha o ariel
-            DrawTextureRec(ariel, arielFrameRec, (Vector2){arielPosicao.x,arielPosicao.y-jumpHeight}, WHITE);  // Draw part of the texture
-
+            
             DrawText(TextFormat("Vidas: %2d",vidas),20,20,20, DARKGREEN);
             DrawText(TextFormat("Pontos: %5d",pontuacao/10),screenWidth - MeasureText("Pontos: 00000",20)-20,20,20, DARKGREEN);
 
@@ -452,6 +475,8 @@ int main(void)
                 if(leaderBoard[i].name[i] == '\0'){
                     DrawText(TextFormat("---"),200,100+25*i, 20, VIOLET);            
                 }else{
+                    sprintf(textBuffer,"%02d",i+1);  
+                    DrawText(TextFormat(textBuffer),170,100+20*i, 20, VIOLET);
                     DrawText(TextFormat(leaderBoard[i].name),200,100+20*i, 20, VIOLET);
                     sprintf(textBuffer,"%8d",leaderBoard[i].score);   
                     DrawText(TextFormat(textBuffer),500,100+20*i, 20, VIOLET);
