@@ -4,14 +4,16 @@
 #include "raylib.h"
 #include"leaderSystem.h"
 
-#define MAX_FRAME_SPEED     15
-#define MIN_FRAME_SPEED      1
+#define MAX(a, b) ((a)>(b)? (a) : (b))
+#define MIN(a, b) ((a)<(b)? (a) : (b))
+
+#define MAX_FRAME_SPEED     60
+#define MIN_FRAME_SPEED     30
 #define TARGET_FPS          60
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
 //------------------------------------------------------------------------------------------
 typedef enum GameScreen { START, RESTART, GAMEPLAY, PAUSE, ENDING, LEADER, TYPE_LEADER, OPENING } GameScreen;
-
 
 
 //------------------------------------------------------------------------------------
@@ -28,7 +30,16 @@ int main(void)
     bool drawScenario = true;
     bool drawAriel = true;
 
-    InitWindow(screenWidth, screenHeight, "Ariel em Raylib");
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
+    InitWindow(screenWidth, screenHeight, "Ariel - O aventureiro");
+
+    // Define textura para poder redimensionar
+    int gameScreenWidth = 800;
+    int gameScreenHeight = 450;
+
+    // Render texture initialization, used to hold the rendering result so we can easily resize it
+    RenderTexture2D target = LoadRenderTexture(gameScreenWidth, gameScreenHeight);
+    SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);  // Texture scale filter to use
 
     InitAudioDevice();// Inicializa o dispositivo de audio
 
@@ -113,6 +124,8 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
+        float scale = MIN((float)GetScreenWidth()/gameScreenWidth, (float)GetScreenHeight()/gameScreenHeight);
+
         globalFrameCounter++;
 
         if(drawScenario){
@@ -264,6 +277,7 @@ int main(void)
                 PauseMusicStream(music);
                 PlaySound(sndPause);
                 drawScenario = false;
+                drawAriel = false;
             }    
 
             if (IsKeyPressed(KEY_L)){
@@ -316,6 +330,7 @@ int main(void)
                 ResumeMusicStream(music);
                 PlaySound(sndPause);
                 drawScenario = true;
+                drawAriel = true;
             }//if
             break;
 
@@ -384,8 +399,9 @@ int main(void)
         //----------------------------------------------------------------------------------
         // Draw
         //----------------------------------------------------------------------------------
-        BeginDrawing();
-
+        
+        // Desenha na textura para depois poder redimensionar
+        BeginTextureMode(target);
         if(drawScenario){            
 
             ClearBackground(WHITE);
@@ -501,6 +517,20 @@ int main(void)
             break;
 
         }//switch
+        EndTextureMode();
+
+        BeginDrawing();
+        ClearBackground(BLACK); // Limpa o fundo da tela
+
+        // Desenha a textura na tela na escala correta
+        DrawTexturePro(target.texture,
+                       (Rectangle){ 0.0f, 0.0f, (float)target.texture.width, (float)-target.texture.height },
+                       (Rectangle){ (GetScreenWidth() - ((float)gameScreenWidth*scale))*0.5f, (GetScreenHeight() - ((float)gameScreenHeight*scale))*0.5f,
+                       (float)gameScreenWidth*scale, (float)gameScreenHeight*scale },
+                       (Vector2){ 0, 0 },
+                       0.0f,
+                       WHITE);
+
 
         EndDrawing();
     //----------------------------------------------------------------------------------

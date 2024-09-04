@@ -8,13 +8,15 @@
 // Leader methods
 //------------------------------------------------------------------------------------------
 
+char filename[30] = "data/leader.dat";
+
 Leader* readLeader(){
     Leader *leaderboard = calloc(SIZE, sizeof(Leader));
 
-    FILE* file = fopen("leader.dat","rb");
+    FILE* file = fopen(filename,"rb");
     
     if (!file){
-        printf("Leader não encontrado. Criando um vazio");
+        printf("Leader não encontrado. Criando um vazio\n");
         for (size_t i = 0; i < SIZE; i++){
             leaderboard[i].name[0] = '\0';
             leaderboard[i].score = -1;
@@ -28,7 +30,7 @@ Leader* readLeader(){
 
 void writeLeader(Leader *leaderboard){
 
-    FILE* file = fopen("leader.dat","wb");
+    FILE* file = fopen(filename,"wb");
     
     if (file == NULL) {
         perror("Error on Leader save");
