@@ -25,6 +25,7 @@ int main(void)
     //--------------------------------------------------------------------------------------
     const int screenWidth = 800;
     const int screenHeight = 450;
+    Vector2 windowPosition;
     float speed = 2;
     unsigned long long int globalFrameCounter = 0;
     bool drawScenario = true;
@@ -125,6 +126,33 @@ int main(void)
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         float scale = MIN((float)GetScreenWidth()/gameScreenWidth, (float)GetScreenHeight()/gameScreenHeight);
+
+// check for alt + enter
+ 		if (IsKeyPressed(KEY_F11) )
+ 		{
+            // see what display we are on right now
+ 			int display = GetCurrentMonitor();
+ 
+            
+            if (IsWindowFullscreen())
+            {
+                // if we are full screen, then go back to the windowed size
+ 			    ToggleFullscreen();
+                SetWindowSize(screenWidth, screenHeight);
+                SetWindowPosition(windowPosition.x, windowPosition.y);
+            }
+            else
+            {
+                // if we are not full screen, set the window size to match the monitor we are on
+                windowPosition = GetWindowPosition();
+                SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+ 			    ToggleFullscreen();
+            }
+ 
+            // toggle the state
+ 		}
+
+
 
         globalFrameCounter++;
 
