@@ -10,6 +10,9 @@
 #define MAX_FRAME_SPEED     60
 #define MIN_FRAME_SPEED     30
 #define TARGET_FPS          60
+
+#define QTE_AVIOES 2
+#define QTE_DADOS 2
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
 //------------------------------------------------------------------------------------------
@@ -76,26 +79,44 @@ int main(void)
     nuvens[4] = LoadTexture("img/cloud5.png");  
     Vector2 nuvemPosicao[5];
 
-    Texture2D montanha;
-    montanha = LoadTexture("img/mountain.png");  
+    Texture2D montanha = LoadTexture("img/mountain.png");  
     Vector2 montanhasPosicao[4];
+
+    Texture2D aviao = LoadTexture("img/airplane.png");
+    Vector2 avioesPosicao[QTE_AVIOES];
 
     Texture2D arvore;
     arvore = LoadTexture("img/tree2.png");  
     Vector2 arvoresPosicao[4];
 
-    Texture2D dados[2];
-    dados[0] = LoadTexture("img/dice2.png");  
-    dados[1] = LoadTexture("img/dice3.png");  
-    Vector2 dadosPosicao[5];
-    Rectangle dadosArea;
+    Texture2D dados[QTE_DADOS];
+    for (int i = 0; i < QTE_DADOS; i++)
+    {
+        if(rand() % 2 == 0){
+            dados[i] = LoadTexture("img/dice2.png");              
+        }else{
+            dados[i] = LoadTexture("img/dice3.png");  
+        }//else
+    }//for
+    
+    Vector2 dadosPosicao[QTE_DADOS];
+    Rectangle areaColisao;
 
     Leader* leaderBoard = readLeader();
 
     char name[30] = "\0";
     int letterCount = 0;
 
-    int colisionStatus[2]={0 , 0};
+    bool colisionDiceStatus[QTE_DADOS];
+    for (int i = 0; i < QTE_DADOS; i++){
+        colisionDiceStatus[i] = false;
+    }//for   
+
+    bool colisionAirplaneStatus[QTE_AVIOES];
+    for (int i = 0; i < QTE_AVIOES; i++){
+        colisionAirplaneStatus[i] = false;
+    }//for
+    
 
     int jump = 0;
     bool exibeNivel = false;
@@ -228,14 +249,19 @@ int main(void)
                 nuvemPosicao[i].y = rand()%150 + 10;
             }//for
 
-            for (int i = 0; i < 2; i++){
+            for (int i = 0; i < QTE_DADOS; i++){
                 dadosPosicao[i].x = (rand()%(screenWidth*2)) + screenWidth;
                 dadosPosicao[i].y = screenHeight - dados[i].height- chao.height + 5;
             }//for 
 
+            for (int i = 0; i < QTE_AVIOES; i++){
+                avioesPosicao[i].x = (rand()%(screenWidth*2)) + screenWidth;
+                avioesPosicao[i].y = screenHeight - ariel.height - chao.height - aviao.height -  rand() % 200;
+            }//for 
+
             for (int i = 0; i < 4; i++){
                 montanhasPosicao[i].x = (rand()%(screenWidth*2));
-                montanhasPosicao[i].y = screenHeight - montanha.height- chao.height + rand()%120;
+                montanhasPosicao[i].y = screenHeight - montanha.height- chao.height + rand()% 120;
             }//for 
 
             for (int i = 0; i < 4; i++){
@@ -266,12 +292,10 @@ int main(void)
                 PlaySound(sndLevelUp);
             }//if
             exibeNivel = (pontuacao %1000 < 20) || ((pontuacao %1000 > 30) && (pontuacao %1000 < 100));
-
-
            
             
             //Atualiza posicao dos dados
-            for (int i = 0; i < 2; i++){
+            for (int i = 0; i < QTE_DADOS; i++){
                 dadosPosicao[i].x -= 2 * speed;
                 if(dadosPosicao[i].x < -dados[i].width ){
                     if (pontuacao % 1000 > 900){
@@ -282,20 +306,48 @@ int main(void)
                 }//if
             }//for    
 
+            //Atualiza posicao dos avioes
+            for (int i = 0; i < QTE_AVIOES; i++){
+                avioesPosicao[i].x -= 5 * speed;
+                if(avioesPosicao[i].x < - aviao.width ){
+                    avioesPosicao[i].y = screenHeight - ariel.height - chao.height - aviao.height -  rand() % 200;
+                    if (pontuacao % 1000 > 900){
+                        avioesPosicao[i].x = rand()%screenWidth + screenWidth * 0.5 * speed;
+                    }else{
+                        avioesPosicao[i].x = rand()%screenWidth + screenWidth;
+                    }//else
+                }//if
+            }//for  
+
             //Verifica colisões
             arielArea = (Rectangle){arielPosicao.x, arielPosicao.y - jumpHeight, ariel.width/12, ariel.height};
-            for (int i = 0; i < 2; i++){
-                dadosArea = (Rectangle){dadosPosicao[i].x, dadosPosicao[i].y, dados[i].width, dados[i].height};
-                if(CheckCollisionRecs(arielArea,dadosArea) && colisionStatus[i] == 0){
+            for (int i = 0; i < QTE_DADOS; i++){
+                areaColisao = (Rectangle){dadosPosicao[i].x, dadosPosicao[i].y, dados[i].width, dados[i].height};
+                if(CheckCollisionRecs(arielArea,areaColisao) && !colisionDiceStatus[i]){
                     vidas--;
-                    colisionStatus[i] = 1;
+                    colisionDiceStatus[i] = true;
                     PlaySound(sndOutch);
                 }//if
-                if (!CheckCollisionRecs(arielArea,dadosArea) && colisionStatus[i] ==1) colisionStatus[i] = 0;
-            }//for            
-            
-            if(vidas == 0){
+                if (!CheckCollisionRecs(arielArea,areaColisao) && colisionDiceStatus[i]) colisionDiceStatus[i] = false;
+            }//for 
+
+            for (int i = 0; i < QTE_AVIOES; i++){
+                areaColisao = (Rectangle){avioesPosicao[i].x, avioesPosicao[i].y, aviao.width, aviao.height};
+                if(CheckCollisionRecs(arielArea,areaColisao) && !colisionAirplaneStatus[i]){
+                    vidas--;
+                    colisionAirplaneStatus[i] = true;
+                    PlaySound(sndOutch);
+                }//if
+                if (!CheckCollisionRecs(arielArea,areaColisao) && colisionAirplaneStatus[i]) colisionAirplaneStatus[i] = false;
+            }//for   
+
+
+            if(vidas <= 0){
                 currentScreen = TYPE_LEADER;
+                jumpHeight = 0;
+                jumpTime = 0;
+                jumpStart = 0;
+                jump = 0;
                 PlaySound(sndGameOver);
             }//if
 
@@ -404,14 +456,12 @@ int main(void)
                 key = GetCharPressed();  // Check next character in the queue
             }
 
-            if (IsKeyPressed(KEY_BACKSPACE))
-            {
+            if (IsKeyPressed(KEY_BACKSPACE) && letterCount > 0){
                 letterCount--;
-                if (letterCount < 0) letterCount = 0;
                 name[letterCount] = '\0';
             }
 
-            if (IsKeyPressed(KEY_ENTER)){
+            if (IsKeyPressed(KEY_ENTER) && letterCount >= 1){
                 addLeader(leaderBoard,name, (int) pontuacao/10);
                 writeLeader(leaderBoard);
                 name[0] = '\0';
@@ -477,12 +527,20 @@ int main(void)
         
 
             //Desenha os dados       
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < QTE_DADOS; i++) {
                 DrawTextureEx(dados[i], dadosPosicao[i],0,1,WHITE);  // Draw part of the texture
-                if(colisionStatus[i] ){
+                if(colisionDiceStatus[i] ){
                     DrawTextureEx(hit,dadosPosicao[i],0,0.1,WHITE);
                 }
             }//for         
+
+            //Desenha os avioes       
+            for (int i = 0; i < QTE_AVIOES; i++) {
+                DrawTextureEx(aviao, avioesPosicao[i],0,1,WHITE);  // Draw part of the texture
+                if(colisionAirplaneStatus[i] ){
+                     DrawTextureEx(hit,avioesPosicao[i],0,0.1,WHITE);
+                }
+            }//for 
 
             
             DrawText(TextFormat("Vidas: %2d",vidas),20,20,20, DARKGREEN);
@@ -516,18 +574,19 @@ int main(void)
             char textBuffer[12];
             DrawText(TextFormat("Leaderboard"),(screenWidth/2) - MeasureText("Leaderboard",40)/2,screenHeight/8, 40, VIOLET);
             for (int i = 0; i < 10; i++){
+                sprintf(textBuffer,"%02d",i+1);  
+                DrawText(TextFormat(textBuffer),170,100+20*i, 20, VIOLET);
                 if(leaderBoard[i].name[i] == '\0'){
-                    DrawText(TextFormat("---"),200,100+25*i, 20, VIOLET);            
+                    DrawText(TextFormat("---"),200,100+20*i, 20, VIOLET);
+                    DrawText(TextFormat("     ---"),500,100+20*i, 20, VIOLET);            
                 }else{
-                    sprintf(textBuffer,"%02d",i+1);  
-                    DrawText(TextFormat(textBuffer),170,100+20*i, 20, VIOLET);
                     DrawText(TextFormat(leaderBoard[i].name),200,100+20*i, 20, VIOLET);
                     sprintf(textBuffer,"%8d",leaderBoard[i].score);   
                     DrawText(TextFormat(textBuffer),500,100+20*i, 20, VIOLET);
                 }//else
             }//for
             
-            DrawText(TextFormat("pressione Enter para continuar..."),(screenWidth/2) - MeasureText("pressione Enter para reiniciar...",20)/2,screenHeight*0.9, 20, WHITE);
+            DrawText(TextFormat("pressione Enter para continuar..."),(screenWidth/2) - MeasureText("pressione Enter para continuar...",20)/2,screenHeight*0.9, 20, WHITE);
             break;
 
         case TYPE_LEADER:
