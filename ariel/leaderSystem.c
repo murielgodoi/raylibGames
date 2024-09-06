@@ -11,18 +11,18 @@
 char filename[30] = "data/leader.dat";
 
 Leader* readLeader(){
-    Leader *leaderboard = calloc(SIZE, sizeof(Leader));
+    Leader *leaderboard = calloc(LEADER_SIZE, sizeof(Leader));
 
     FILE* file = fopen(filename,"rb");
     
     if (!file){
         printf("Leader não encontrado. Criando um vazio\n");
-        for (size_t i = 0; i < SIZE; i++){
+        for (size_t i = 0; i < LEADER_SIZE; i++){
             leaderboard[i].name[0] = '\0';
             leaderboard[i].score = -1;
         }//for
     }else{
-        fread(leaderboard, sizeof(Leader), SIZE, file);
+        fread(leaderboard, sizeof(Leader), LEADER_SIZE, file);
         fclose(file);
     }//else
     return leaderboard;
@@ -35,7 +35,7 @@ void writeLeader(Leader *leaderboard){
     if (file == NULL) {
         perror("Error on Leader save");
     } else {
-        fwrite(leaderboard ,sizeof(Leader) ,SIZE ,file);
+        fwrite(leaderboard ,sizeof(Leader) ,LEADER_SIZE ,file);
         fclose(file);
     }// else
 
@@ -45,7 +45,7 @@ void writeLeader(Leader *leaderboard){
 
 int addLeader(Leader* leaderboard, char* name, int score){
 
-    int pos = SIZE - 1;
+    int pos = LEADER_SIZE - 1;
     Leader newLeader;
     strcpy(newLeader.name, name);
     newLeader.score = score;
@@ -54,7 +54,7 @@ int addLeader(Leader* leaderboard, char* name, int score){
         leaderboard[pos] =  leaderboard[pos-1];
         pos--;
     }//while]
-    if(pos != SIZE - 1){
+    if(pos != LEADER_SIZE - 1){
         leaderboard[pos+1] = newLeader;
     }//if
 
@@ -65,7 +65,7 @@ int addLeader(Leader* leaderboard, char* name, int score){
 void printLeader(Leader *leaderboard){
 
     printf("\n|  # | Name                 | Score |\n");
-    for (int i = 0; i < SIZE; i++){
+    for (int i = 0; i < LEADER_SIZE; i++){
         //if(leaderboard[i].score != -1)
         printf("| %2d | %-20s | %5d |\n",i+1 ,leaderboard[i].name, leaderboard[i].score);
     }//for
@@ -74,7 +74,7 @@ void printLeader(Leader *leaderboard){
 }//writeLeader
 
 bool gotLeaderboard(Leader* leaderboard, int score){
-    return leaderboard[SIZE - 1].score <= score;
+    return leaderboard[LEADER_SIZE - 1].score <= score;
 }
 
 // int main(){

@@ -11,7 +11,7 @@
 #define MIN_FRAME_SPEED     30
 #define TARGET_FPS          60
 
-#define QTE_AVIOES 2
+#define QTE_AVIOES 1
 #define QTE_DADOS 2
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -573,10 +573,10 @@ int main(void)
 
             char textBuffer[12];
             DrawText(TextFormat("Leaderboard"),(screenWidth/2) - MeasureText("Leaderboard",40)/2,screenHeight/8, 40, VIOLET);
-            for (int i = 0; i < 10; i++){
+            for (int i = 0; i < LEADER_SIZE; i++){
                 sprintf(textBuffer,"%02d",i+1);  
                 DrawText(TextFormat(textBuffer),170,100+20*i, 20, VIOLET);
-                if(leaderBoard[i].name[i] == '\0'){
+                if(leaderBoard[i].name[0] == '\0'){
                     DrawText(TextFormat("---"),200,100+20*i, 20, VIOLET);
                     DrawText(TextFormat("     ---"),500,100+20*i, 20, VIOLET);            
                 }else{

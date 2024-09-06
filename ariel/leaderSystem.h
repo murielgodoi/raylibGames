@@ -1,7 +1,7 @@
 #ifndef LEADERSYSTEM_H
     #define LEADERSYSTEM_H
 
-    #define SIZE 10
+    #define LEADER_SIZE 10
     #define MAX_LENGTH 16
 
     typedef struct{
