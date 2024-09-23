@@ -140,6 +140,9 @@ int main(void)
 
     SetTargetFPS(TARGET_FPS);               // Set our game to run at 60 frames-per-second
 
+    int key;
+    char textBuffer[12];
+
     GameScreen currentScreen = OPENING;
     //--------------------------------------------------------------------------------------
 
@@ -443,7 +446,7 @@ int main(void)
             break;
         
         case TYPE_LEADER:
-            int key = GetCharPressed();
+            key = GetCharPressed();
             while (key > 0){
                 // NOTE: Only allow keys in range [32..125]
                 if ((key >= 32) && (key <= 125) && (letterCount < MAX_LENGTH - 1))
@@ -571,7 +574,6 @@ int main(void)
         
         case LEADER:
 
-            char textBuffer[12];
             DrawText(TextFormat("Leaderboard"),(screenWidth/2) - MeasureText("Leaderboard",40)/2,screenHeight/8, 40, VIOLET);
             for (int i = 0; i < LEADER_SIZE; i++){
                 sprintf(textBuffer,"%02d",i+1);  
