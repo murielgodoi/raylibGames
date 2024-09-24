@@ -23,4 +23,6 @@
 
     void printLeader(Leader *leaderboard);
 
+    int minLeader(Leader *leaderboard);
+
 #endif

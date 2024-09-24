@@ -11,19 +11,19 @@
 #define MIN_FRAME_SPEED     30
 #define TARGET_FPS          60
 
-#define QTE_AVIOES 1
 #define QTE_DADOS 2
+#define MAX_AVIOES 5
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
 //------------------------------------------------------------------------------------------
 typedef enum GameScreen { START, RESTART, GAMEPLAY, PAUSE, ENDING, LEADER, TYPE_LEADER, OPENING } GameScreen;
 
+int qte_avioes = 0;
 
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-int main(void)
-{
+int main(void) {
     // Initialization
     //--------------------------------------------------------------------------------------
     const int screenWidth = 800;
@@ -83,7 +83,7 @@ int main(void)
     Vector2 montanhasPosicao[4];
 
     Texture2D aviao = LoadTexture("img/airplane.png");
-    Vector2 avioesPosicao[QTE_AVIOES];
+    Vector2 avioesPosicao[MAX_AVIOES];
 
     Texture2D arvore;
     arvore = LoadTexture("img/tree2.png");  
@@ -108,15 +108,7 @@ int main(void)
     int letterCount = 0;
 
     bool colisionDiceStatus[QTE_DADOS];
-    for (int i = 0; i < QTE_DADOS; i++){
-        colisionDiceStatus[i] = false;
-    }//for   
-
-    bool colisionAirplaneStatus[QTE_AVIOES];
-    for (int i = 0; i < QTE_AVIOES; i++){
-        colisionAirplaneStatus[i] = false;
-    }//for
-    
+    bool colisionAirplaneStatus[MAX_AVIOES];
 
     int jump = 0;
     bool exibeNivel = false;
@@ -151,7 +143,7 @@ int main(void)
     {
         float scale = MIN((float)GetScreenWidth()/gameScreenWidth, (float)GetScreenHeight()/gameScreenHeight);
 
-// check for alt + enter
+        // check for F11 - Fullscreen
  		if (IsKeyPressed(KEY_F11) )
  		{
             // see what display we are on right now
@@ -246,6 +238,16 @@ int main(void)
         case START:
             pontuacao = 0;
             vidas = 5;
+            qte_avioes = 0;
+
+            // Zera status de colisões 
+            for (int i = 0; i < MAX_AVIOES; i++){
+                colisionAirplaneStatus[i] = false;
+            }//for
+            for (int i = 0; i < QTE_DADOS; i++){
+                colisionDiceStatus[i] = false;
+            }//for   
+
 
             for (int i = 0; i < 5; i++){
                 nuvemPosicao[i].x = (rand()%(screenWidth*2));
@@ -257,7 +259,7 @@ int main(void)
                 dadosPosicao[i].y = screenHeight - dados[i].height- chao.height + 5;
             }//for 
 
-            for (int i = 0; i < QTE_AVIOES; i++){
+            for (int i = 0; i < MAX_AVIOES; i++){
                 avioesPosicao[i].x = (rand()%(screenWidth*2)) + screenWidth;
                 avioesPosicao[i].y = screenHeight - ariel.height - chao.height - aviao.height -  rand() % 200;
             }//for 
@@ -293,6 +295,7 @@ int main(void)
             //Som e mensagem ao passar de nível
             if(pontuacao % 1000 == 0){
                 PlaySound(sndLevelUp);
+                qte_avioes = nivel <= 10 ? nivel / 2 : 5;
             }//if
             exibeNivel = (pontuacao %1000 < 20) || ((pontuacao %1000 > 30) && (pontuacao %1000 < 100));
            
@@ -310,14 +313,14 @@ int main(void)
             }//for    
 
             //Atualiza posicao dos avioes
-            for (int i = 0; i < QTE_AVIOES; i++){
+            for (int i = 0; i < qte_avioes; i++){
                 avioesPosicao[i].x -= 5 * speed;
-                if(avioesPosicao[i].x < - aviao.width ){
+                if(avioesPosicao[i].x < - aviao.width ){ // Se avião saiu da tela
                     avioesPosicao[i].y = screenHeight - ariel.height - chao.height - aviao.height -  rand() % 200;
                     if (pontuacao % 1000 > 900){
-                        avioesPosicao[i].x = rand()%screenWidth + screenWidth * 0.5 * speed;
+                        avioesPosicao[i].x = rand()%(screenWidth*2) + screenWidth * 0.5 * speed;
                     }else{
-                        avioesPosicao[i].x = rand()%screenWidth + screenWidth;
+                        avioesPosicao[i].x = rand()%(screenWidth*2) + screenWidth;
                     }//else
                 }//if
             }//for  
@@ -334,7 +337,7 @@ int main(void)
                 if (!CheckCollisionRecs(arielArea,areaColisao) && colisionDiceStatus[i]) colisionDiceStatus[i] = false;
             }//for 
 
-            for (int i = 0; i < QTE_AVIOES; i++){
+            for (int i = 0; i < qte_avioes; i++){
                 areaColisao = (Rectangle){avioesPosicao[i].x, avioesPosicao[i].y, aviao.width, aviao.height};
                 if(CheckCollisionRecs(arielArea,areaColisao) && !colisionAirplaneStatus[i]){
                     vidas--;
@@ -346,7 +349,12 @@ int main(void)
 
 
             if(vidas <= 0){
-                currentScreen = TYPE_LEADER;
+                if (pontuacao/10 >= minLeader(leaderBoard)){
+                    currentScreen = TYPE_LEADER;
+                }else{
+                    currentScreen = ENDING;
+                }//else
+                
                 jumpHeight = 0;
                 jumpTime = 0;
                 jumpStart = 0;
@@ -431,7 +439,7 @@ int main(void)
         
         case ENDING:
             if (IsKeyPressed(KEY_ENTER)){
-                currentScreen = START;
+                currentScreen = LEADER;
                 ResumeMusicStream(music);
                 PlaySound(sndPause);
             }//if
@@ -538,7 +546,7 @@ int main(void)
             }//for         
 
             //Desenha os avioes       
-            for (int i = 0; i < QTE_AVIOES; i++) {
+            for (int i = 0; i < qte_avioes; i++) {
                 DrawTextureEx(aviao, avioesPosicao[i],0,1,WHITE);  // Draw part of the texture
                 if(colisionAirplaneStatus[i] ){
                      DrawTextureEx(hit,avioesPosicao[i],0,0.1,WHITE);
@@ -633,4 +641,4 @@ int main(void)
     //--------------------------------------------------------------------------------------
 
     return 0;
-}
+}// main

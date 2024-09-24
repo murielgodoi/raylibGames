@@ -73,8 +73,8 @@ void printLeader(Leader *leaderboard){
 
 }//writeLeader
 
-bool gotLeaderboard(Leader* leaderboard, int score){
-    return leaderboard[LEADER_SIZE - 1].score <= score;
+int minLeader(Leader* leaderboard){
+    return leaderboard[LEADER_SIZE - 1].score;
 }
 
 // int main(){
