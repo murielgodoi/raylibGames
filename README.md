@@ -1,7 +1,9 @@
 # raylibGames
 Alguns exemplos de jogos simples utilizando a bibloteca RayLib e a linguagem Ansi C
 
-## Para configurar a biblioteca no seu Linux (Ubuntu)
+
+
+## Para recompilar a biblioteca no seu Linux (Ubuntu)
 
 Instale o compilador GCC, make e git (Caso ainda não tenha instalado):
 ```
@@ -36,4 +38,26 @@ gcc seuJogo.c -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -o seuJogo
 ## Caso necessite desinstalar a biblioteca utilize:
 ```
 sudo make uninstall RAYLIB_LIBTYPE=SHARED
+```
+---
+## Para compilar e executar 
+
+### No Linux
+Instale as dependencias para as bibliotecas de video e audio seguindo as intruções acima
+
+### No windows 
+utilize o compilador MinGW-w64 (64 bits)
+```
+https://github.com/skeeto/w64devkit/releases/download/v2.0.0/w64devkit-x64-2.0.0.exe
+```
+
+
+Para compilar utilize:
+```
+make
+```
+
+Para executar utilize:
+```
+make run
 ```
