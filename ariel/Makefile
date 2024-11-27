@@ -19,6 +19,10 @@ endif
 
 SRC=./*.c
 
+web:
+	# emcc $(SRC) -Os -Wall -g -s USE_GLFW=3 -DPLATFORM_WEB -I./include/ -L./libweb -o $(BIN).html
+	emcc ./*.c -g -s USE_GLFW=3 -s ASYNCIFY -DPLATFORM_WEB -I./include/ -L./libweb -lraylib -s ERROR_ON_UNDEFINED_SYMBOLS=0 -o ./ariel.html
+
 all:
 	gcc $(SRC) -g $(EXTRA_FLAGS) $(INCLUDE) -o $(BIN)
 
