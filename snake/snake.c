@@ -10,12 +10,11 @@
  */
 
 #include<stdlib.h>
+#include<stdio.h>
 #include<time.h>
 #include "raylib.h"
 
 typedef struct {
-    int posX;
-    int posY;
     int velX;
     int velY;
     int size;
@@ -24,9 +23,31 @@ typedef struct {
 } Snake;
 
 
-void drawSnake(Snake snake){
-    
+void snakeDraw(Snake snake, int squareSize){
+    //DrawRectangle(snake.posX*squareSize , snake.posY*squareSize, squareSize, squareSize, DARKGREEN);
+    for(int i = snake.size-1; i >= 0; i--){
+        DrawRectangle(snake.tail[i][0]*squareSize , snake.tail[i][1]*squareSize, squareSize, squareSize, DARKGREEN);
+    }//for
 }
+
+void snakeEat(Snake snake, int x, int y){
+    snake.tail[snake.size][0] = x;
+    snake.tail[snake.size][1] = y;
+    snake.size++;
+}//snake
+
+void snakeWalk(Snake snake){
+
+    snake.tail[snake.size][0] = snake.tail[snake.size-1][0] + snake.velX;
+    snake.tail[snake.size][1] = snake.tail[snake.size-1][1] + snake.velY;
+
+    for(int i = snake.size; i >= 1; i--){
+        snake.tail[i-1][0] = snake.tail[i][0];
+        snake.tail[i-1][1] = snake.tail[i][1];
+    }//for
+
+}//snakeWalk
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -44,13 +65,13 @@ int main(void)
     const int squareWidth = screenWidth/squareSize;
     const int squareHeight = screenHeight/squareSize;
 
-    Snake snake = {squareWidth/2, squareHeight/2, 1, 0, 1, 0};
+    Snake snake = { 1, 0, 1, 1,{{squareWidth/2,squareHeight/2}}};
 
     int applePosX = 10;
     int applePosY = 10;
 
 
-    InitWindow(screenWidth, screenHeight, "Hello World Raylib 5.5");
+    InitWindow(screenWidth, screenHeight, "Snake Game - under development");
 
     SetTargetFPS(30);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -80,19 +101,20 @@ int main(void)
         }
 
         //Atualiza posicao da cobra
-        snake.posX += snake.velX;
-        snake.posY += snake.velY;
+        //snake.posX += snake.velX;
+        //snake.posY += snake.velY;
+        snakeWalk(snake);
 
         //Verifica se saiu da tela
-        if(snake.posX < 0) snake.posX = 0;
-        if(snake.posY < 0) snake.posY = 0;
-        if(snake.posY > squareHeight-1) snake.posY = squareHeight-1;
-        if(snake.posX > squareWidth-1) snake.posX = squareWidth-1;
+        // if(snake.posX < 0) snake.posX = 0;
+        // if(snake.posY < 0) snake.posY = 0;
+        // if(snake.posY > squareHeight-1) snake.posY = squareHeight-1;
+        // if(snake.posX > squareWidth-1) snake.posX = squareWidth-1;
 
-        if (snake.posX == applePosX && snake.posY == applePosY){
-            applePosX = rand() % squareWidth;
-            applePosY = rand() % squareHeight;
-        }
+        //if (snake.posX == applePosX && snake.posY == applePosY){
+        //    applePosX = rand() % squareWidth;
+        //    applePosY = rand() % squareHeight;
+        //}
     
 
         // Desenha
@@ -101,7 +123,7 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            DrawRectangle(snake.posX*squareSize , snake.posY*squareSize, squareSize, squareSize, DARKGREEN);
+            snakeDraw(snake, squareSize);
             DrawRectangle(applePosX*squareSize , applePosY*squareSize, squareSize, squareSize, RED);
 
         EndDrawing();
