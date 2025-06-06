@@ -36,6 +36,14 @@ void snakeEat(Snake snake, int x, int y){
     snake.size++;
 }//snake
 
+bool snakeWillEat(Snake snake, int x, int y){
+
+    int nextX = snake.tail[snake.size-1][0] + snake.velX;
+    int nextY = snake.tail[snake.size-1][1] + snake.velY;
+
+    return (nextX == x && nextY == y);
+}//snake
+
 void snakeWalk(Snake snake){
 
     snake.tail[snake.size][0] = snake.tail[snake.size-1][0] + snake.velX;
@@ -103,6 +111,11 @@ int main(void)
         //Atualiza posicao da cobra
         //snake.posX += snake.velX;
         //snake.posY += snake.velY;
+        if(snakeWillEat(snake, applePosX, applePosY)){
+            snakeEat(snake, applePosX, applePosY);
+            applePosX = rand() % squareWidth;
+            applePosY = rand() % squareHeight;
+        }//if
         snakeWalk(snake);
 
         //Verifica se saiu da tela
